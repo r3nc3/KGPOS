@@ -9,10 +9,23 @@ export default function Inventory() {
   const [search, setSearch] = useState('')
   const [adjust, setAdjust] = useState(null)
   const [qty, setQty] = useState('')
+  const [scanInput, setScanInput] = useState('')
+  const [alert, setAlert] = useState('')
   const navigate = useNavigate()
 
   const load = () => window.api.getInventory().then(setInv)
   useEffect(() => { load() }, [])
+
+  const handleScanned = (code) => {
+    setAlert('')
+    const p = inv.find((x) => (x.barcode || '').toString().trim() === String(code).trim())
+    if (!p) {
+      setAlert(`No product found for barcode ${code}. Add it as a new product first.`)
+      return
+    }
+    setAdjust(p)
+    setQty('')
+  }
 
   const filtered = inv.filter((p) => {
     const matchesSearch =
@@ -52,9 +65,22 @@ export default function Inventory() {
         <div className="stat-card"><div className="stat-label">Out of Stock</div><div className="stat-value" style={{ color: '#dc2626' }}>{outOfStock}</div></div>
       </div>
 
+      {alert && <div className={alert.includes('found') ? 'alert alert-error' : 'alert alert-success'}>{alert}</div>}
+
       <div className="card">
         <div className="toolbar">
-          <input placeholder="Search inventory..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 240 }} />
+          <input placeholder="Scan barcode with USB reader → open stock adjust" value={scanInput}
+            onChange={(e) => setScanInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const code = scanInput.trim()
+                if (code) { handleScanned(code); setScanInput('') }
+              }
+            }}
+            style={{ width: 320 }}
+            autoFocus
+          />
+          <input placeholder="Search inventory..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 200 }} />
           <select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="all">All items</option>
             <option value="never-sold">Never sold</option>

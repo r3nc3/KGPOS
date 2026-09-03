@@ -43,6 +43,7 @@ export default function Checkout() {
   const [cashReceived, setCashReceived] = useState('')
   const [showConfirm, setShowConfirm] = useState(false)
   const [alert, setAlert] = useState('')
+  const [scanInput, setScanInput] = useState('')
   const [processing, setProcessing] = useState(false)
 
   const load = () => window.api.getProducts().then((p) => setProducts(p.filter((x) => x.active)))
@@ -67,6 +68,15 @@ export default function Checkout() {
       if (p.stock <= 0) { setAlert('Out of stock'); return c }
       return [...c, { product_id: p.id, product_name: p.name, unit_price: p.price, quantity: 1, line_total: p.price }]
     })
+  }
+
+  const handleScanned = (code) => {
+    const p = products.find((x) => (x.barcode || '').toString().trim() === String(code).trim() && x.active)
+    if (!p) {
+      setAlert(`Product not found for barcode: ${code}`)
+      return
+    }
+    addToCart(p)
   }
 
   const incQty = (id) => {
@@ -125,7 +135,30 @@ export default function Checkout() {
 
       <div className="checkout">
         <div>
-          <input className="product-search" placeholder="Search or scan barcode..." value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+          <div className="card" style={{ marginBottom: 14, padding: '14px 16px' }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              Scan barcode with USB reader
+            </label>
+            <input
+              className="product-search"
+              placeholder="Point scanner here → barcode appears & item is added"
+              value={scanInput}
+              onChange={(e) => setScanInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const code = scanInput.trim()
+                  if (code) { handleScanned(code); setScanInput('') }
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <input
+            className="product-search"
+            placeholder="Search products by name, category or barcode..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <div className="product-grid">
             {filtered.map((p) => (
               <div key={p.id} className="product-tile" onClick={() => addToCart(p)}>
