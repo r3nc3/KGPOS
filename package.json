@@ -55,7 +55,19 @@
       "icon": "build/icon.ico",
       "target": [
         "nsis"
-      ]
+      ],
+      "requestedExecutionLevel": "asInvoker",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "KGPOS",
+      "artifactName": "KGPOS-Setup-${version}.${ext}",
+      "uninstallDisplayName": "KGPOS Point of Sale"
     },
     "mac": {
       "icon": "build/icon.png",
