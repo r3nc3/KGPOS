@@ -82,6 +82,24 @@ ipcMain.handle('products:delete', (e, id) => {
   return { ok: true }
 })
 
+/* ---------------- INVENTORY ---------------- */
+ipcMain.handle('inventory:list', () => {
+  return db.prepare(`
+    SELECT p.*,
+      COALESCE(SUM(si.quantity), 0) AS total_sold,
+      (SELECT COUNT(*) FROM sales_items s2 WHERE s2.product_id = p.id) > 0 AS has_been_sold
+    FROM products p
+    LEFT JOIN sales_items si ON si.product_id = p.id
+    GROUP BY p.id
+    ORDER BY p.name`).all()
+})
+
+ipcMain.handle('inventory:adjustStock', (e, { id, qty, reason }) => {
+  db.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').run(qty, id)
+  const p = db.prepare('SELECT * FROM products WHERE id = ?').get(id)
+  return { ok: true, product: p }
+})
+
 /* ---------------- USERS ---------------- */
 ipcMain.handle('users:list', () => {
   return db.prepare('SELECT id, username, full_name, role, active, created_at FROM users ORDER BY username').all()

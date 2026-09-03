@@ -1,8 +1,8 @@
 import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../App'
 
-export default function Layout({ children }) {
+export default function Layout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -13,6 +13,7 @@ export default function Layout({ children }) {
         <NavLink to="/" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')} end>Dashboard</NavLink>
         <NavLink to="/checkout" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>Checkout</NavLink>
         <NavLink to="/products" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>Products</NavLink>
+        <NavLink to="/inventory" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>Inventory</NavLink>
         <NavLink to="/sales" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>Sales & Reports</NavLink>
         {user?.role === 'admin' && (
           <NavLink to="/users" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>Users</NavLink>
@@ -23,7 +24,7 @@ export default function Layout({ children }) {
           <button className="btn btn-secondary btn-sm" onClick={() => { logout(); navigate('/login') }}>Log out</button>
         </div>
       </aside>
-      <main className="main">{children}</main>
+      <main className="main"><Outlet /></main>
     </div>
   )
 }

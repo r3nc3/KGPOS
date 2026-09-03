@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
+import Inventory from './pages/Inventory'
 import Users from './pages/Users'
 import Checkout from './pages/Checkout'
 import Sales from './pages/Sales'
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/inventory" element={<Inventory />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/users" element={<Users />} />
         </Route>
