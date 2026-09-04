@@ -2,6 +2,11 @@ name: Build Installers
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing tag to append mac/linux assets to (e.g. v0.1.0). Leave empty to build without publishing."
+        required: false
+        type: string
   push:
     tags:
       - "v*"
@@ -48,15 +53,24 @@ jobs:
 
   release:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.release_tag != ''
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: dist-assets
           merge-multiple: true
+      - name: Resolve tag for publishing
+        id: tag
+        run: |
+          if [ "${{ github.event.inputs.release_tag }}" != "" ]; then
+            echo "value=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.value }}
           files: dist-assets/**/*
-          generate_release_notes: true
+          generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/v') }}
