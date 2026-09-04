@@ -28,6 +28,9 @@
            color:#fff; background:var(--blue); text-decoration:none; font-size:16px;
            box-shadow:0 6px 20px rgba(37,99,235,0.4); }
     .btn:hover { background:var(--blue-hover); }
+    .dl-row { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; }
+    .btn-ghost { background:rgba(37,99,235,0.12); color:#93c5fd; border:1px solid rgba(37,99,235,0.45); box-shadow:none; }
+    .btn-ghost:hover { background:rgba(37,99,235,0.22); color:#dbeafe; }
     .dl-note { font-size:13px; color:#9ca3af; margin-top:12px; }
     .badges { margin-top:34px; color:#9ca3af; font-size:14px; }
     .badges span { margin:0 8px; }
@@ -64,8 +67,12 @@
     <div class="wrap">
       <h1>Fast, free, offline point of sale</h1>
       <p>KGPOS is a modern POS built with Electron + React + SQLite. Ring up sales, scan barcodes, track stock and print receipts — right on your own machine, no internet or cloud required.</p>
-      <a class="btn" id="dl" href="https://github.com/r3nc3/KGPOS/releases/latest">Download for Windows</a>
-      <div class="dl-note">Windows installer (NSIS) · v0.1.0 · free &amp; open source (MIT)</div>
+      <div class="dl-row">
+        <a class="btn" id="dl-win" href="https://github.com/r3nc3/KGPOS/releases/latest">Download for Windows</a>
+        <a class="btn btn-ghost" id="dl-mac" href="https://github.com/r3nc3/KGPOS/releases/latest">Download for macOS</a>
+        <a class="btn btn-ghost" id="dl-linux" href="https://github.com/r3nc3/KGPOS/releases/latest">Download for Linux</a>
+      </div>
+      <div class="dl-note">Windows (NSIS) · macOS (DMG) · Linux (AppImage &amp; deb) · v0.1.0 · free &amp; open source (MIT)</div>
       <div class="badges">
         <span>Windows</span><span>macOS</span><span>Linux</span>
         <span>·</span><span>Barcode Scanner</span><span>Built-in database</span>
@@ -107,14 +114,16 @@
   </footer>
 
   <script>
-    // Resolve the latest release download automatically so the button stays current.
-    var released = false;
+    // Resolve the latest release download URLs automatically so the buttons stay current.
     fetch('https://api.github.com/repos/r3nc3/KGPOS/releases/latest')
       .then(function (r) { return r.json(); })
       .then(function (rel) {
         if (!rel || !rel.assets) return;
-        var exe = rel.assets.find(function (a) { return /\.exe$/i.test(a.name) && !/blockmap/i.test(a.name); });
-        if (exe) { document.getElementById('dl').href = exe.browser_download_url; released = true; }
+        var pick = function (re) { var a = rel.assets.find(function (x) { return re.test(x.name) && !/blockmap/i.test(x.name); }); return a ? a.browser_download_url : null; };
+        var win = pick(/\.exe$/i), mac = pick(/\.dmg$/i), linux = pick(/\.AppImage$/i);
+        if (win)  document.getElementById('dl-win').href   = win;
+        if (mac)  document.getElementById('dl-mac').href   = mac;
+        if (linux) document.getElementById('dl-linux').href = linux;
       })
       .catch(function () {});
   </script>
