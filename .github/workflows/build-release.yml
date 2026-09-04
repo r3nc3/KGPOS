@@ -60,6 +60,10 @@ jobs:
         with:
           path: dist-assets
           merge-multiple: true
+      - name: List installers to publish
+        run: |
+          find dist-assets \( -name "*.exe" -o -name "*.blockmap" -o -name "*.dmg" \
+            -o -name "*.AppImage" -o -name "*.deb" -o -name "latest.yaml" -o -name "latest*.yml" \) -type f
       - name: Resolve tag for publishing
         id: tag
         run: |
@@ -72,5 +76,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.value }}
-          files: dist-assets/**/*
+          files: |
+            dist-assets/*.exe
+            dist-assets/*.blockmap
+            dist-assets/*.dmg
+            dist-assets/*.AppImage
+            dist-assets/*.deb
+            dist-assets/latest.yml
+            dist-assets/latest*.yml
           generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/v') }}
