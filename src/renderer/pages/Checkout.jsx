@@ -49,6 +49,21 @@ export default function Checkout() {
   const load = () => window.api.getProducts().then((p) => setProducts(p.filter((x) => x.active)))
   useEffect(() => { load() }, [])
 
+  // Start a sale from a barcode scanned on the Dashboard (staged in sessionStorage).
+  useEffect(() => {
+    if (products.length === 0) return
+    let pending
+    try { pending = JSON.parse(sessionStorage.getItem('kgpos_pending_scan') || 'null') }
+    catch { sessionStorage.removeItem('kgpos_pending_scan') }
+    if (!pending) return
+    sessionStorage.removeItem('kgpos_pending_scan')
+    const p = (pending.barcode !== undefined)
+      ? products.find((x) => x.active && (x.barcode || '').toString().trim() === String(pending.barcode).trim())
+      : null
+    if (p) addToCart(p)
+    else setAlert(`Product not found for barcode: ${pending.barcode}`)
+  }, [products])
+
   const filtered = useMemo(() =>
     products.filter((p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
